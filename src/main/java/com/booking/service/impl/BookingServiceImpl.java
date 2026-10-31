@@ -15,11 +15,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
+
+    public BookingServiceImpl(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
+    }
 
     @Override
     public BookingResponseDTO createBooking(BookingRequestDTO request) {
