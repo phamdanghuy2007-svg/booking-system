@@ -2,14 +2,20 @@ package com.booking.controller;
 
 import com.booking.dto.BookingRequestDTO;
 import com.booking.dto.BookingResponseDTO;
+import com.booking.dto.TimeSlotDTO;
 import com.booking.entity.BookingStatus;
 import com.booking.service.BookingService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -34,6 +40,21 @@ public class BookingController {
         return ResponseEntity.ok(bookings);
     }
 
+    @GetMapping("/paged")
+    public ResponseEntity<Page<BookingResponseDTO>> getBookingsPaged(
+            @RequestParam(required = false) BookingStatus status,
+            @RequestParam(required = false) Long staffId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "startTime") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<BookingResponseDTO> paged = bookingService.getBookingsPaged(status, staffId, pageable);
+        return ResponseEntity.ok(paged);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<BookingResponseDTO> getBookingById(@PathVariable Long id) {
         BookingResponseDTO booking = bookingService.getBookingById(id);
@@ -56,10 +77,37 @@ public class BookingController {
         return ResponseEntity.ok(updated);
     }
 
+    @PatchMapping("/{id}/confirm")
+    public ResponseEntity<BookingResponseDTO> confirmBooking(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.confirmBooking(id));
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<BookingResponseDTO> cancelBooking(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.cancelBooking(id));
+    }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<BookingResponseDTO> completeBooking(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.completeBooking(id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
         bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
     }
-}
 
+    @GetMapping("/available-slots")
+    public ResponseEntity<List<TimeSlotDTO>> getAvailableSlots(
+            @RequestParam(defaultValue = "2") Long staffId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "30") Integer durationMinutes) {
+
+        if (date == null) {
+            date = LocalDate.now();
+        }
+        List<TimeSlotDTO> slots = bookingService.getAvailableSlots(staffId, date, durationMinutes);
+        return ResponseEntity.ok(slots);
+    }
+}

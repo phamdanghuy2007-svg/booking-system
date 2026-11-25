@@ -3,6 +3,7 @@ package com.booking.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -21,6 +22,16 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "customer_id", nullable = false)
+    private Long customerId;
+
+    @Column(name = "service_id", nullable = false)
+    private Long serviceId;
+
+    @Column(name = "staff_id")
+    private Long staffId;
+
+    @Nationalized
     @Column(nullable = false, length = 100)
     private String customerName;
 
@@ -30,6 +41,7 @@ public class Booking {
     @Column(nullable = false, length = 20)
     private String customerPhone;
 
+    @Nationalized
     @Column(nullable = false, length = 100)
     private String serviceName;
 
@@ -46,6 +58,7 @@ public class Booking {
     @Column(nullable = false, length = 20)
     private BookingStatus status;
 
+    @Nationalized
     @Column(length = 500)
     private String note;
 
@@ -56,4 +69,3 @@ public class Booking {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
-

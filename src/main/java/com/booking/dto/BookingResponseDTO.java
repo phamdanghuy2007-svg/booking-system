@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 public class BookingResponseDTO {
 
     private Long id;
+    private Long customerId;
+    private Long serviceId;
+    private Long staffId;
     private String customerName;
     private String customerEmail;
     private String customerPhone;
@@ -26,4 +29,3 @@ public class BookingResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-
